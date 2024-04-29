@@ -1,6 +1,6 @@
 # Data-Structure-Project
 
-Welcome to the Data Structures Project Repository created especaally for DSA project! This repository contains a collection of data structures and algorithms implemented in C++ for our project
+Welcome to the Data Structures Project Repository created especially for DSA project! This repository contains a collection of data structures and algorithms implemented in C++ for our project
 
 Overview.
 This project aims to provide implementations of various fundamental data structures and algorithms used in our project questions.
