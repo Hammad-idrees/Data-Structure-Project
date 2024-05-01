@@ -1,44 +1,45 @@
-#pragma once
+#ifndef SEARCH_LIB_BST_H
+#define SEARCH_LIB_BST_H
 
-// Required libraries 
-#include<iostream>
-#include<fstream>
-#include<cstring>
-#include<string>
-using namespace std;
+#include <iostream>
+#include <fstream>
 
-// Define the structure for doubly linked list
-struct Node
-{
-	long int data;
-	long int index;
-	Node* left;
-	Node* right;
+typedef long int dtype;
+
+// Struct for tree node
+struct Node {
+    dtype data;
+    int index;
+    Node* left;
+    Node* right;
 };
-typedef struct Stack
-{
-	int top;
-	Node* head;
-}Stack;
 
-// Required Function headers
+// Struct for stack node
+struct StackNode {
+    Node* data;
+    StackNode* next;
+};
+
+// Struct for stack
+struct Stack {
+    StackNode* top;
+};
+
+// Function prototypes
 Node* createTree();
 void printTree(Node* root);
-Node* addNode(Node* root, long int data, long int index);
-Node* getData(const string& filename);
-void saveData(const string& filename, Node* root);
-long int getFirstOccurrence(long int element, Node* root);
-long int getLastOccurrence(long int element, Node* root);
-void getAllOccurrences(long int element, Node* root, long int* occurrences, int& numOccurrences);
-void saveData(const string& filename, Node* root);
+Node* addNode(Node* root, dtype data, int index);
+Node* getData(const std::string& filename);
+void saveData(const std::string& filename, Node* root);
+int getFirstOccurrence(dtype element, Node* root);
+int getLastOccurrence(dtype element, Node* root);
+void getAllOccurrences(dtype element, Node* root, int*& occurrences, int* numOccurrences);
 bool validateTree(Node* root);
+
+// Stack utility functions
 Stack* createStack();
-void push(Stack* stack, Node* node);
+void push(Stack* stack, Node* data);
 Node* pop(Stack* stack);
-bool isEmpty(Stack* stack);
-/*
+bool isEmptyStack(Stack* stack);
 
-Supporting function header
-void saveData(const string& filename, Node* root);
-
-*/
+#endif

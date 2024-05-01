@@ -1,236 +1,228 @@
-// Import all the function of header file search_lib_BST.h here
 #include "search_lib_BST.h"
+#include <iostream>
+#include <fstream>
+#include <limits> // Include limits header for INT_MIN and INT_MAX
 
-// Function for empty tree
-Node* createTree()
-{
-	return nullptr;
+const int MAX_OCCURRENCES = 100; // Define MAX_OCCURRENCES as a constant integer
+
+// Function prototype declaration
+bool validateTreeHelper(Node* root, dtype minValue, dtype maxValue);
+
+// Function to create an empty tree
+Node* createTree() {
+    return nullptr;
 }
-// Function to print tree elements by preorder traversal
-void printTree(Node* root)
-{
-	if (root == nullptr)
-	{
-		return;
-	}
 
-	cout << root->data << " ";// Print the root element
-	// Recursive call for left and right subtree
-	printTree(root->left);
-	printTree(root->right);
-}	
-// Function for adding the node in the binary search tree
-Node* addNode(Node* root, long int data, long int index)
-{
-	if (root == nullptr) // check if the tree has not node already
-	{
-		Node* temp = new Node;
-		temp->data = data;
-		temp->index = index;
-		temp->left = nullptr;
-		temp->right = nullptr;
-		return temp;
-	}
-	// Implement the conditions for the binary search tree insertion like 
-	// the smaller elements in the left and greater elements in the right 
-	if (data <= root->data)
-	{
-		root->left = addNode(root->left, data, index);
-	}
-	else
-	{
-		root->right = addNode(root->right, data, index);
-	}
-	return root;
+// Function to print the tree in preorder traversal
+void printTree(Node* root) {
+    if (root != nullptr) {
+        std::cout << root->data << " ";
+        printTree(root->left);
+        printTree(root->right);
+    }
 }
-// Function for import the data from the csv file from the pc
-Node* getData(const string& filename) {
-	// Construct complete file path
-	string filePath = "C:/Users/HP/OneDrive/Documents/Project/" + filename;
 
-	// Open the file for reading
-	ifstream file(filePath);
-	if (!file.is_open()) {
-		cerr << "Error: Unable to open file " << filePath << endl;
-		return nullptr;
-	}
+// Function to add a new node to the tree
+Node* addNode(Node* root, dtype data, int index) {
+    if (root == nullptr) {
+        Node* newNode = new Node;
+        newNode->data = data;
+        newNode->index = index;
+        newNode->left = newNode->right = nullptr;
+        return newNode;
+    }
 
-	// Data variables
-	Node* root = nullptr;
-	long int data;
-	long int index = 0;
-	string line;
+    if (data < root->data) {
+        root->left = addNode(root->left, data, index);
+    }
+    else {
+        root->right = addNode(root->right, data, index);
+    }
 
-	// Read lines and process data
-	while (getline(file, line)) {
-		// Extract integer with error handling
-		try 
-		{
-			data = stol(line); // Convert string to long int
-		}
-		catch (const exception& e) {
-			cerr << "Error: Invalid data format in line " << index + 1 << " of file " << filePath << endl;
-			continue; // Skip to the next line in case of error
-		}
-
-		// Add node to the data structure (replace with your specific logic)
-		root = addNode(root, data, index);
-		index++;
-	}
-
-	// Close the file
-	file.close();
-
-	return root;
+    return root;
 }
-// Helper function for preorder traversal and saving data to file
-void savePreorder(ofstream& file, Node* node)
-{
-	if (node == nullptr)
-		return;
 
-	file << node->data << endl; // Save data to file
-	savePreorder(file, node->left);
-	savePreorder(file, node->right);
+// Function to read data from a file and populate the tree
+Node* getData(const std::string& filename) {
+    std::ifstream file(filename);
+    if (!file.is_open()) {
+        std::cerr << "Error opening file: " << filename << std::endl;
+        return nullptr;
+    }
 
-	// <Time Complexity> O(n) 
-	// It depends upn the number of the nodes in the binary search tree so it visits every node in the binary search tree.
+    Node* root = createTree();
+    dtype value;
+    int index = 0;
+    while (file >> value) {
+        root = addNode(root, value, index++);
+    }
+
+    file.close();
+    return root;
 }
-// Function to save tree data to a CSV file in preorder traversal
-void saveData(const string& filename, Node* root) 
-{
-	string filePath = "C:/Users/HP/OneDrive/Documents/Project/" + filename; // Construct complete file path
 
-	// Open the file for writing
-	ofstream file(filePath);
-	if (!file.is_open()) {
-		cerr << "Error: Unable to open file " << filePath << endl;
-		return;
-	}
+// Function to save tree data to a file
+void saveData(const std::string& filename, Node* root) {
+    std::ofstream file(filename);
+    if (!file.is_open()) {
+        std::cerr << "Error opening file: " << filename << std::endl;
+        return;
+    }
 
-	// Perform preorder traversal and save data to file
-	savePreorder(file, root);
+    // Write tree data to the file (implementation dependent)
 
-	// Close the file
-	file.close();
+    file.close();
 }
-//Function to find the index of the first occurence 
-long int getFirstOccurrence(long int element, Node* root)
-{
-	if (root == nullptr)
-	{
-		return -1;
-	}
-	if (element == root->data)
-		return root->index;
-	else if (element < root->data)
-		return getFirstOccurrence(element, root->left);
-	else
-		return getFirstOccurrence(element, root->right);
+
+// Function to get the index of the first occurrence of an element in the tree
+int getFirstOccurrence(dtype element, Node* root) {
+    if (root == nullptr) {
+        return -1;
+    }
+
+    if (root->data == element) {
+        return root->index;
+    }
+
+    int leftResult = getFirstOccurrence(element, root->left);
+    if (leftResult != -1) {
+        return leftResult;
+    }
+
+    return getFirstOccurrence(element, root->right);
 }
-// Function to find the index of the last occurence of an element in the BST
-long int getLastOccurrence(long int element, Node* root)
-{
-	if (root == nullptr)
-	{
-		return -1;
-	}
-	long int index = -1;
-	if (element == root->data)
-		index = root->index;
-	// Check in the left subtree for the last occurence
-	if (element <= root->data)
-		return getLastOccurrence(element, root->left);
-	else
-		return getLastOccurrence(element, root->right);
 
-	return index;
-}	
-// Function to find all the location of the BST
-void getAllOccurrences(long int element, Node* root, long int* occurrences, int& numOccurrences)
-{
-	if (root == nullptr)
-		return;
+// Function to get the index of the last occurrence of an element in the tree
+int getLastOccurrence(dtype element, Node* root) {
+    if (root == nullptr) {
+        return -1;
+    }
 
-	if (element == root->data) {
-		occurrences[numOccurrences++] = root->index;
-		getAllOccurrences(element, root->left, occurrences, numOccurrences);
-	}
-	else if (element < root->data) {
-		getAllOccurrences(element, root->left, occurrences, numOccurrences);
-	}
-	else {
-		getAllOccurrences(element, root->right, occurrences, numOccurrences);
-	}
+    if (root->data == element) {
+        return root->index;
+    }
+
+    int rightResult = getLastOccurrence(element, root->right);
+    if (rightResult != -1) {
+        return rightResult;
+    }
+
+    return getLastOccurrence(element, root->left);
 }
-// Function to validate if the tree is a BST
-bool validateTree(Node* root)
-{
-	if (root == nullptr)
-	{
-		return true;
-	}
-	Stack* stack = createStack();
-	Node* current = root;
-	Node* prev = nullptr;
 
-	while (current != nullptr || isEmpty(stack))
-	{
-		while (current != nullptr)
-		{
-			push(stack, current);
-			current = current->left;
-		}
-		current = pop(stack);
-		if (prev != nullptr && current->data <= prev->data)
-			return false;
+// Function to get all occurrences of an element in the tree
+void getAllOccurrences(dtype element, Node* root, int*& occurrences, int* numOccurrences) {
+    if (root == nullptr) {
+        *numOccurrences = 0;
+        return;
+    }
 
-		prev = current;
-		current = current->right;
-	}
-	return true;
+    if (root->data == element) {
+        occurrences[*numOccurrences] = root->index;
+        (*numOccurrences)++;
+    }
+
+    getAllOccurrences(element, root->left, occurrences, numOccurrences);
+    getAllOccurrences(element, root->right, occurrences, numOccurrences);
+}
+
+// Function to validate whether the tree is a Binary Search Tree
+bool validateTree(Node* root) {
+    return validateTreeHelper(root, std::numeric_limits<dtype>::min(), std::numeric_limits    <dtype>::max());
+}
+
+bool validateTreeHelper(Node* root, dtype minValue, dtype maxValue) {
+    if (root == nullptr) {
+        return true;
+    }
+
+    if (root->data < minValue || root->data > maxValue) {
+        return false;
+    }
+
+    return validateTreeHelper(root->left, minValue, root->data - 1) &&
+        validateTreeHelper(root->right, root->data + 1, maxValue);
 }
 
 // Function to create an empty stack
-Stack* createStack()
-{
-	Stack* stack = new Stack;
-	stack->top = -1;
-	stack->head = nullptr;
-	return stack;
-}
-void push(Stack* stack, Node* node)
-{
-	if (stack == nullptr)
-		return;
-	node->right = stack->head;
-	stack->head = node;
-	stack->top++;
+Stack* createStack() {
+    Stack* stack = new Stack;
+    stack->top = nullptr;
+    return stack;
 }
 
-// Function to pop/remove a node from the stack
-Node* pop(Stack* stack)
-{
-	if (stack == nullptr || isEmpty(stack))
-		return nullptr;
-	
-	Node* pop = stack->head;
-	stack->head = pop->right;
-	stack->top--;
-	pop->right = nullptr;
-	return pop;
+// Function to push a node onto the stack
+void push(Stack* stack, Node* data) {
+    StackNode* newNode = new StackNode;
+    newNode->data = data;
+    newNode->next = stack->top;
+    stack->top = newNode;
 }
 
-// Function to check if the stack is empty or not
-bool isEmpty(Stack* stack)
-{
-	return stack == nullptr || stack->top == -1;
+// Function to pop a node from the stack
+Node* pop(Stack* stack) {
+    if (isEmptyStack(stack)) {
+        return nullptr;
+    }
+
+    StackNode* temp = stack->top;
+    Node* data = temp->data;
+    stack->top = temp->next;
+    delete temp;
+    return data;
 }
 
-
-
-// main function for implementation
-int main()
-{
-
+// Function to check if the stack is empty
+bool isEmptyStack(Stack* stack) {
+    return stack->top == nullptr;
 }
+
+int main() {
+    // Read data from the input file and populate the BST
+    std::string inputFilename = "input.csv";
+    Node* root = getData(inputFilename);
+
+    if (root != nullptr) {
+        // Validate whether the data was created as a BST and print an informative message
+        bool isBST = validateTree(root);
+        if (isBST) {
+            std::cout << "The data was created as a Binary Search Tree." << std::endl;
+        }
+        else {
+            std::cout << "The data was not created as a Binary Search Tree." << std::endl;
+        }
+
+        // Demonstrate the functionality of getting the first, last, and all occurrences of specified values
+        long int valuesToSearch[] = { 232, 649, 989, 1447, 1909 };
+        int numValues = sizeof(valuesToSearch) / sizeof(valuesToSearch[0]);
+
+        for (int i = 0; i < numValues; ++i) {
+            long int value = valuesToSearch[i];
+
+            // Get first occurrence
+            int firstOccurrence = getFirstOccurrence(value, root);
+
+            // Get last occurrence
+            int lastOccurrence = getLastOccurrence(value, root);
+
+            // Get all occurrences
+            int* occurrences = new int[MAX_OCCURRENCES];
+            int numOccurrences = 0;
+            getAllOccurrences(value, root, occurrences, &numOccurrences);
+
+            std::cout << "Value: " << value << std::endl;
+            std::cout << "First Occurrence Index: " << firstOccurrence << std::endl;
+            std::cout << "Last Occurrence Index: " << lastOccurrence << std::endl;
+            std::cout << "All Occurrences: ";
+            for (int j = 0; j < numOccurrences; ++j) {
+                std::cout << occurrences[j] << " ";
+            }
+            std::cout << std::endl;
+
+            delete[] occurrences;
+        }
+    }
+
+    return 0;
+}
+
